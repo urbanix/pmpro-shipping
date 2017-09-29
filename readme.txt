@@ -1,15 +1,15 @@
-=== Paid Memberships Pro - Shipping Add On ===
-Contributors: strangerstudios
-Tags: paid memberships pro, shipping, shipping address, 
+=== Paid Memberships Pro - Shipping Add On w/ State Select ===
+Contributors: strangerstudios, urbanix
+Tags: paid memberships pro, shipping, shipping address,
 Requires at least: 3.0
 Tested up to: 4.8
 Stable tag: .4
 
-Adds shipping fields to the Paid Memberships Pro checkout.
+Adds shipping fields to the Paid Memberships Pro checkout. with select box for shipping state
 
 == Description ==
 
-Adds shipping fields to the checkout page, confirmation page, confirmation emails, member's list and edit user profile pages.
+Adds shipping fields to the checkout page, confirmation page, confirmation emails, member's list and edit user profile pages. Shipping state will have select field.
 
 == Installation ==
 

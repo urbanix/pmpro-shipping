@@ -1,153 +1,202 @@
 <?php
 /*
-Plugin Name: Paid Memberships Pro - Shipping Add On
-Plugin URI: https://www.paidmembershipspro.com/add-ons/shipping-address-membership-checkout/
-Description: Add shipping to the checkout page and other updates.
-Version: .5
-Author: Paid Memberships Pro
-Author URI: https://www.paidmembershipspro.com
+Plugin Name: Paid Memberships Pro - Shipping Add On with State Select
+Plugin URI: http://www.paidmembershipspro.com/wp/pmpro-shipping/
+Description: Add shipping to the checkout page and other updates. State Select BOx enabled
+Version: .3.3
+Author: Stranger Studios, Urbanix
+Author URI: http://www.strangerstudios.com
+
+Note that this plugin requires PMPro 1.3.19 or higher to function fully.
 */
 
 define('PMPRO_SHIPPING_SHOW_REQUIRED', true);	//if false required fields won't have asterisks and non-required fields will say (optional)
 
 //add a shipping address field to the checkout page with "sameas" checkbox
 function pmproship_pmpro_checkout_boxes()
-{	
-	global $gateway, $pmpro_states, $sameasbilling, $sfirstname, $slastname, $saddress1, $saddress2, $scity, $sstate, $szipcode, $scountry, $shipping_address, $pmpro_requirebilling, $pmpro_review;	
+{
+	global $gateway, $pmpro_states, $sameasbilling, $sfirstname, $slastname, $saddress1, $saddress2, $scity, $sstate, $szipcode, $scountry, $shipping_address, $pmpro_requirebilling, $pmpro_review;
 ?>
-	<div id="pmpro_shipping_address_fields" class="pmpro_checkout" <?php if($pmpro_review) { ?>style="display: none;"<?php } ?> >
-		<h3>
-			<span class="pmpro_checkout-h3-name"><?php _e('Shipping Address', 'pmpro');?></span>
-		</h3>
-		<div class="pmpro_checkout-fields">
-			<p style="display: none;" id="sameasbilling_wrapper">
-				<input type="checkbox" id="sameasbilling" name="sameasbilling" value="1" <?php if(!empty($sameasbilling)) { ?>checked="checked"<?php } ?> /> 
-				<label for="sameasbilling" class="pmpro_label-inline pmpro_clickable">
-					<?php _e('Ship to the billing address used above.', 'pmpro');?>
-				</label>
-			</p>
-			<script>
-				jQuery(document).ready(function() {				
-					//checking if sameas checkbox should show
-					function checkBillingAddressVisibilityForSameAsCheckbox()
+	<table id="pmpro_shipping_address_fields" class="pmpro_checkout top1em" width="100%" cellpadding="0" cellspacing="0" border="0" <?php if($pmpro_review) { ?>style="display: none;"<?php } ?> >
+	<thead>
+		<tr>
+			<th><?php _e('Shipping Address', 'pmpro');?></th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>
+
+		<p style="margin-left:130px; display: none;" id="sameasbilling_wrapper">
+			<input type="checkbox" id="sameasbilling" name="sameasbilling" value="1" <?php if(!empty($sameasbilling)) { ?>checked="checked"<?php } ?> />
+			<label for="sameasbilling" style="float: none; font-weight: normal; cursor: pointer;">
+				<?php _e('Ship to the billing address used above.', 'pmpro');?>
+			</label>
+		</p>
+		<script>
+			jQuery(document).ready(function() {
+				//checking if sameas checkbox should show
+				function checkBillingAddressVisibilityForSameAsCheckbox()
+				{
+					var baddress = jQuery('#baddress1');
+					var pmpro_shipping_address_fields = jQuery('#pmpro_shipping_address_fields');
+					if(baddress.length && baddress.is(':visible'))
 					{
-						var baddress = jQuery('#baddress1');
-						var pmpro_shipping_address_fields = jQuery('#pmpro_shipping_address_fields');
-
-						if(jQuery('#sameasbilling').is(':checked'))
-						{					
-							jQuery('#shipping-fields').hide();
-						}
-
-						if(baddress.length && baddress.is(':visible'))
-						{
-							jQuery('#sameasbilling_wrapper').show();
-						}
-						else if (pmpro_shipping_address_fields.is(':visible'))
-						{
-							jQuery('#sameasbilling').attr('checked', false);
-							jQuery('#sameasbilling_wrapper').hide();						
-							jQuery('#shipping-fields').show();
-						}
-
-						//check again in .2 seconds
-						pmpro_shipping_show_sameas_timer = setTimeout(function(){checkBillingAddressVisibilityForSameAsCheckbox();}, 200);
-					}								
-
-					//run on page load
-					checkBillingAddressVisibilityForSameAsCheckbox();
-				});
-			</script>
-
-			<div id="shipping-fields">
-				<div class="pmpro_checkout-field pmpro_checkout-field-sfirstname">
-					<label for="sfirstname"><?php _e('First Name', 'pmpro');?></label>
-					<input id="sfirstname" name="sfirstname" type="text" class="input <?php echo pmpro_getClassForField("sfirstname");?>" size="30" value="<?php echo esc_attr($sfirstname);?>" />
-					<?php if(PMPRO_SHIPPING_SHOW_REQUIRED) { ?><span class="pmpro_asterisk"> *</span><?php } ?>
-				</div> <!-- end pmpro_checkout-field pmpro_checkout-field-sfirstname -->
-				<div class="pmpro_checkout-field pmpro_checkout-field-slastname">
-					<label for="slastname"><?php _e('Last Name', 'pmpro');?></label>
-					<input id="slastname" name="slastname" type="text" class="input <?php echo pmpro_getClassForField("slastname");?>" size="30" value="<?php echo esc_attr($slastname);?>" /> 
-					<?php if(PMPRO_SHIPPING_SHOW_REQUIRED) { ?><span class="pmpro_asterisk"> *</span><?php } ?>
-				</div> <!-- end pmpro_checkout-field pmpro_checkout-field-slastname -->
-				<div class="pmpro_checkout-field pmpro_checkout-field-saddress1">
-					<label for="saddress1"><?php _e('Address 1', 'pmpro');?></label>
-					<input id="saddress1" name="saddress1" type="text" class="input <?php echo pmpro_getClassForField("saddress1");?>" size="30" value="<?php echo esc_attr($saddress1);?>" />
-					<?php if(PMPRO_SHIPPING_SHOW_REQUIRED) { ?><span class="pmpro_asterisk"> *</span><?php } ?>
-				</div> <!-- end pmpro_checkout-field pmpro_checkout-field-saddress1 -->
-				<div class="pmpro_checkout-field pmpro_checkout-field-saddress2">
-					<label for="saddress2"><?php _e('Address 2', 'pmpro');?></label>
-					<input id="saddress2" name="saddress2" type="text" class="input <?php echo pmpro_getClassForField("saddress2");?>" size="30" value="<?php echo esc_attr($saddress2);?>" /> 
-					<?php if(!PMPRO_SHIPPING_SHOW_REQUIRED) { ?><small class="lite">(optional)</small><?php } ?>
-				</div> <!-- end pmpro_checkout-field pmpro_checkout-field-saddress2 -->
-				<div class="pmpro_checkout-field pmpro_checkout-field-scity">
-					<label for="scity"><?php _e('City', 'pmpro');?></label>
-					<input id="scity" name="scity" type="text" class="input <?php echo pmpro_getClassForField("scity");?>" size="30" value="<?php echo esc_attr($scity)?>" /> 
-					<?php if(PMPRO_SHIPPING_SHOW_REQUIRED) { ?><span class="pmpro_asterisk"> *</span><?php } ?>
-				</div> <!-- end pmpro_checkout-field pmpro_checkout-field-scity -->
-				<div class="pmpro_checkout-field pmpro_checkout-field-sstate">
-					<label for="sstate"><?php _e('State', 'pmpro');?></label>															
-					<input id="sstate" name="sstate" type="text" class="input <?php echo pmpro_getClassForField("sstate");?>" size="30" value="<?php echo esc_attr($sstate)?>" /> 					
-					<?php if(PMPRO_SHIPPING_SHOW_REQUIRED) { ?><span class="pmpro_asterisk"> *</span><?php } ?>
-				</div> <!-- end pmpro_checkout-field pmpro_checkout-field-sstate -->
-				<div class="pmpro_checkout-field pmpro_checkout-field-szipcode">
-					<label for="szipcode"><?php _e('Postal Code', 'pmpro');?></label>
-					<input id="szipcode" name="szipcode" type="text" class="input <?php echo pmpro_getClassForField("szipcode");?>" size="30" value="<?php echo esc_attr($szipcode)?>" />
-					<?php if(PMPRO_SHIPPING_SHOW_REQUIRED) { ?><span class="pmpro_asterisk"> *</span><?php } ?>
-				</div>	 <!-- end pmpro_checkout-field pmpro_checkout-field-szipcode -->
-				<div class="pmpro_checkout-field pmpro_checkout-field-scountry">
-					<label for="scountry"><?php _e('Country', 'pmpro');?></label>
-					<select name="scountry" class="input <?php echo pmpro_getClassForField("scountry");?>">
-						<?php
-							global $pmpro_countries, $pmpro_default_country;
-							foreach($pmpro_countries as $abbr => $country)
-							{
-								if(!$scountry)
-									$scountry = $pmpro_default_country;
-							?>
-							<option value="<?php echo $abbr?>" <?php if($abbr == $scountry) { ?>selected="selected"<?php } ?>><?php echo $country?></option>
-							<?php
-							}
-						?>
-					</select>
-					<?php if(PMPRO_SHIPPING_SHOW_REQUIRED) { ?><span class="pmpro_asterisk"> *</span><?php } ?>
-				</div> <!-- end pmpro_checkout-field pmpro_checkout-field-scountry -->
-				<?php /* old non-long form method
-				<div>
-					<label for="scity_state_zip"><span class="red">*</span>City, State Zip</label>
-					<input id="scity" name="scity" type="text" class="input" size="14" style="width: 125px;" value="<?php echo esc_attr($scity)?>" />, 
-
-					<?php // <input id="sstate" name="sstate" type="text" class="input" size="2" value="<?php echo esc_attr($sstate)?>" /> ?>
-
-					<select name="sstate">
-						<option value="">--</option>
-						<?php 
-							$sstate = get_user_meta($user->ID, 'pmpro_sstate', true);
-							foreach($pmpro_states as $ab => $st) 
-							{ 
-						?>
-							<option value="<?=$ab?>" <?php if($ab == $sstate) { ?>selected="selected"<?php } ?>><?=$st?></option>
-						<?php } ?>
-					</select>
-					<input id="szipcode" name="szipcode" type="text" class="input" size="5" style="width: 75px" value="<?php echo esc_attr($szipcode)?>" /> 
-				</div>
-				*/ ?>
-			</div> <!-- end shipping-fields -->	
-			<script>
-				jQuery('#sameasbilling').change(function() {				
-					if(jQuery('#sameasbilling').is(':checked'))
-					{					
-						jQuery('#shipping-fields').hide();
+						jQuery('#sameasbilling_wrapper').show();
 					}
-					else
+					else if (pmpro_shipping_address_fields.is(':visible'))
 					{
+						jQuery('#sameasbilling').attr('checked', false);
+						jQuery('#sameasbilling_wrapper').hide();
 						jQuery('#shipping-fields').show();
 					}
-				});
-			</script>
-		</div> <!-- end pmpro_checkout-fields -->
-	</div> <!-- end pmpro_shipping_address_fields -->
-<?php	
+
+					//check again in .2 seconds
+					pmpro_shipping_show_sameas_timer = setTimeout(function(){checkBillingAddressVisibilityForSameAsCheckbox();}, 200);
+				}
+
+				//run on page load
+				checkBillingAddressVisibilityForSameAsCheckbox();
+			});
+		</script>
+
+		<div id="shipping-fields">
+			<div>
+				<label for="sfirstname"><?php _e('First Name', 'pmpro');?></label>
+				<input id="sfirstname" name="sfirstname" type="text" class="input <?php echo pmpro_getClassForField("sfirstname");?>" size="20" value="<?php echo esc_attr($sfirstname);?>" />
+				<?php if(PMPRO_SHIPPING_SHOW_REQUIRED) { ?><span class="pmpro_asterisk"> *</span><?php } ?>
+			</div>
+
+			<div>
+				<label for="slastname"><?php _e('Last Name', 'pmpro');?></label>
+				<input id="slastname" name="slastname" type="text" class="input <?php echo pmpro_getClassForField("slastname");?>" size="20" value="<?php echo esc_attr($slastname);?>" />
+				<?php if(PMPRO_SHIPPING_SHOW_REQUIRED) { ?><span class="pmpro_asterisk"> *</span><?php } ?>
+			</div>
+
+			<div>
+				<label for="saddress1"><?php _e('Address 1', 'pmpro');?></label>
+				<input id="saddress1" name="saddress1" type="text" class="input <?php echo pmpro_getClassForField("saddress1");?>" size="20" value="<?php echo esc_attr($saddress1);?>" />
+				<?php if(PMPRO_SHIPPING_SHOW_REQUIRED) { ?><span class="pmpro_asterisk"> *</span><?php } ?>
+			</div>
+
+			<div>
+				<label for="saddress2"><?php _e('Address 2', 'pmpro');?></label>
+				<input id="saddress2" name="saddress2" type="text" class="input <?php echo pmpro_getClassForField("saddress2");?>" size="20" value="<?php echo esc_attr($saddress2);?>" />
+				<?php if(!PMPRO_SHIPPING_SHOW_REQUIRED) { ?><small class="lite">(optional)</small><?php } ?>
+			</div>
+
+			<div>
+				<label for="scity"><?php _e('City', 'pmpro');?></label>
+				<input id="scity" name="scity" type="text" class="input <?php echo pmpro_getClassForField("scity");?>" size="30" value="<?php echo esc_attr($scity)?>" />
+				<?php if(PMPRO_SHIPPING_SHOW_REQUIRED) { ?><span class="pmpro_asterisk"> *</span><?php } ?>
+			</div>
+			<div>
+				<label for="sstate"><?php _e('State', 'pmpro');?></label>
+				<!-- <input id="sstate" name="sstate" type="text" class="input <?php echo pmpro_getClassForField("sstate");?>" size="30" value="<?php echo esc_attr($sstate)?>" />-->
+				<?php
+									$state_dropdowns = apply_filters("pmpro_state_dropdowns", false);
+									if($state_dropdowns === true || $state_dropdowns == "names")
+									{
+										global $pmpro_states;
+									?>
+									<select name="sstate" class=" <?php echo pmpro_getClassForField("sstate");?>">
+										<option value="">--</option>
+										<?php
+											foreach($pmpro_states as $ab => $st)
+											{
+										?>
+											<option value="<?php echo esc_attr($ab);?>" <?php if($ab == $sstate) { ?>selected="selected"<?php } ?>><?php echo $st;?></option>
+										<?php } ?>
+									</select>
+									<?php
+									}
+									elseif($state_dropdowns == "abbreviations")
+									{
+										global $pmpro_states_abbreviations;
+									?>
+										<select name="sstate" class=" <?php echo pmpro_getClassForField("sstate");?>">
+											<option value="">--</option>
+											<?php
+												foreach($pmpro_states_abbreviations as $ab)
+												{
+											?>
+												<option value="<?php echo esc_attr($ab);?>" <?php if($ab == $sstate) { ?>selected="selected"<?php } ?>><?php echo $ab;?></option>
+											<?php } ?>
+										</select>
+									<?php
+									}
+									else
+									{
+									?>
+									<input id="sstate" name="sstate" type="text" class="input <?php echo pmpro_getClassForField("sstate");?>" size="2" value="<?php echo esc_attr($sstate)?>" />
+									<?php
+									}
+								?>
+				<?php if(PMPRO_SHIPPING_SHOW_REQUIRED) { ?><span class="pmpro_asterisk"> *</span><?php } ?>
+			</div>
+			<div>
+				<label for="szipcode"><?php _e('Postal Code', 'pmpro');?></label>
+				<input id="szipcode" name="szipcode" type="text" class="input <?php echo pmpro_getClassForField("szipcode");?>" size="30" value="<?php echo esc_attr($szipcode)?>" />
+				<?php if(PMPRO_SHIPPING_SHOW_REQUIRED) { ?><span class="pmpro_asterisk"> *</span><?php } ?>
+			</div>
+			<div>
+				<label for="scountry"><?php _e('Country', 'pmpro');?></label>
+				<select name="scountry" class="<?php echo pmpro_getClassForField("scountry");?>">
+					<?php
+						global $pmpro_countries, $pmpro_default_country;
+						foreach($pmpro_countries as $abbr => $country)
+						{
+							if(!$scountry)
+								$scountry = $pmpro_default_country;
+						?>
+						<option value="<?php echo $abbr?>" <?php if($abbr == $scountry) { ?>selected="selected"<?php } ?>><?php echo $country?></option>
+						<?php
+						}
+					?>
+				</select>
+				<?php if(PMPRO_SHIPPING_SHOW_REQUIRED) { ?><span class="pmpro_asterisk"> *</span><?php } ?>
+			</div>
+
+			<?php /* old non-long form method
+			<div>
+				<label for="scity_state_zip"><span class="red">*</span>City, State Zip</label>
+				<input id="scity" name="scity" type="text" class="input" size="14" style="width: 125px;" value="<?php echo esc_attr($scity)?>" />,
+
+				<?php // <input id="sstate" name="sstate" type="text" class="input" size="2" value="<?php echo esc_attr($sstate)?>" /> ?>
+
+				<select name="sstate">
+					<option value="">--</option>
+					<?php
+						$sstate = get_user_meta($user->ID, 'pmpro_sstate', true);
+						foreach($pmpro_states as $ab => $st)
+						{
+					?>
+						<option value="<?=$ab?>" <?php if($ab == $sstate) { ?>selected="selected"<?php } ?>><?=$st?></option>
+					<?php } ?>
+				</select>
+				<input id="szipcode" name="szipcode" type="text" class="input" size="5" style="width: 75px" value="<?php echo esc_attr($szipcode)?>" />
+			</div>
+			*/ ?>
+		</div>
+
+		<script>
+			jQuery('#sameasbilling').change(function() {
+				if(jQuery('#sameasbilling').is(':checked'))
+				{
+					jQuery('#shipping-fields').hide();
+				}
+				else
+				{
+					jQuery('#shipping-fields').show();
+				}
+			});
+		</script>
+
+		</td>
+	</tr>
+	</tbody>
+	</table>
+<?php
 }
 add_action("pmpro_checkout_after_billing_fields", "pmproship_pmpro_checkout_boxes");
 
@@ -155,22 +204,22 @@ add_action("pmpro_checkout_after_billing_fields", "pmproship_pmpro_checkout_boxe
 function pmproship_pmpro_valid_gateways($gateways)
 {
 	global $sameasbilling, $sfirstname, $slastname, $saddress1, $saddress2, $scity, $sstate, $szipcode, $scountry, $shipping_address, $pmpro_requirebilling, $current_user;
-	
+
 	if(!empty($_REQUEST['sameasbilling']))
 		$sameasbilling = true;	//we'll get the fields further down below
 	elseif(!empty($_REQUEST['saddress1']))
 	{
 		//grab the fields entered by the user at checkout
-		$sfirstname = $_REQUEST['sfirstname'];		
-		$slastname = $_REQUEST['slastname'];		
+		$sfirstname = $_REQUEST['sfirstname'];
+		$slastname = $_REQUEST['slastname'];
 		$saddress1 = $_REQUEST['saddress1'];
 		if(!empty($_REQUEST['saddress2'])) {
 	    	$saddress2 = $_REQUEST['saddress2'];
-		}	
+		}
 		$scity = $_REQUEST['scity'];
-		
+
 		$sstate = $_REQUEST['sstate'];
-		
+
 		//convert long state names to abbreviations
 		if(!empty($sstate))
 		{
@@ -184,7 +233,7 @@ function pmproship_pmpro_valid_gateways($gateways)
 				}
 			}
 		}
-		
+
 		$szipcode = $_REQUEST['szipcode'];
 		$scountry = $_REQUEST['scountry'];
 	}
@@ -205,7 +254,7 @@ function pmproship_pmpro_valid_gateways($gateways)
 		$scity = $_SESSION['scity'];
 		$sstate = $_SESSION['sstate'];
 		$szipcode = $_SESSION['szipcode'];
-		$scountry = $_SESSION['scountry'];				
+		$scountry = $_SESSION['scountry'];
 	}
     elseif(!empty($current_user->ID))
 	{
@@ -227,42 +276,42 @@ add_filter('pmpro_valid_gateways', 'pmproship_pmpro_valid_gateways');
 
 //update a user meta value on checkout
 function pmproship_pmpro_after_checkout($user_id)
-{	
-	global $sameasbilling, $sfirstname, $slastname, $saddress1, $saddress2, $scity, $sstate, $szipcode, $scountry, $shipping_address, $pmpro_requirebilling;			
-	
+{
+	global $sameasbilling, $sfirstname, $slastname, $saddress1, $saddress2, $scity, $sstate, $szipcode, $scountry, $shipping_address, $pmpro_requirebilling;
+
 	if(!empty($sameasbilling))
-	{			
-		//set the shipping fields to be the same as the billing fields		
+	{
+		//set the shipping fields to be the same as the billing fields
 		$sfirstname = get_user_meta($user_id, "pmpro_bfirstname", true);
 		$slastname = get_user_meta($user_id, "pmpro_blastname", true);
 		$saddress1 = get_user_meta($user_id, "pmpro_baddress1", true);
 		$saddress2 = get_user_meta($user_id, "pmpro_baddress2", true);
 		$scity = get_user_meta($user_id, "pmpro_bcity", true);
 		$sstate = get_user_meta($user_id, "pmpro_bstate", true);
-		$szipcode = get_user_meta($user_id, "pmpro_bzipcode", true);			
-		$scountry = get_user_meta($user_id, "pmpro_bcountry", true);					
+		$szipcode = get_user_meta($user_id, "pmpro_bzipcode", true);
+		$scountry = get_user_meta($user_id, "pmpro_bcountry", true);
 	}
-	
+
 	if(!empty($saddress1))
 	{
 		//update the shipping user meta
 		update_user_meta($user_id, "pmpro_sfirstname", $sfirstname);
-		update_user_meta($user_id, "pmpro_slastname", $slastname);	
+		update_user_meta($user_id, "pmpro_slastname", $slastname);
 		update_user_meta($user_id, "pmpro_saddress1", $saddress1);
 		update_user_meta($user_id, "pmpro_saddress2", $saddress2);
 		update_user_meta($user_id, "pmpro_scity", $scity);
 		update_user_meta($user_id, "pmpro_sstate", $sstate);
-		update_user_meta($user_id, "pmpro_szipcode", $szipcode);		
-		update_user_meta($user_id, "pmpro_scountry", $scountry);		
+		update_user_meta($user_id, "pmpro_szipcode", $szipcode);
+		update_user_meta($user_id, "pmpro_scountry", $scountry);
 	}
-	
-	//unset session vars (Note: updated to run after checkout in version .3.1		
+
+	//unset session vars (Note: updated to run after checkout in version .3.1
 	$vars = array('sfirstname', 'slastname', 'saddress1', 'saddress2', 'scity', 'sstate', 'szipcode', 'scountry', 'sameasbilling');
 	foreach($vars as $var)
 	{
 		if(isset($_SESSION[$var]))
 			unset($_SESSION[$var]);
-	}	
+	}
 }
 add_action("pmpro_after_checkout", "pmproship_pmpro_after_checkout");
 
@@ -272,111 +321,111 @@ function pmproship_show_extra_profile_fields($user)
 	global $pmpro_states;
 ?>
 	<h3><?php _e('Shipping Address', 'pmpro');?></h3>
- 
+
 	<table class="form-table">
- 
+
 		<tr>
-			<th><?php _e('First Name', 'pmpro');?></th>			
+			<th><?php _e('First Name', 'pmpro');?></th>
 			<td>
 				<input id="sfirstname" name="sfirstname" type="text" class="regular-text" value="<?php echo esc_attr( get_user_meta($user->ID, 'pmpro_sfirstname', true) ); ?>" />
 			</td>
 		</tr>
 		<tr>
-			<th><?php _e('Last Name', 'pmpro');?></th>	
+			<th><?php _e('Last Name', 'pmpro');?></th>
 			<td>
 				<input id="slastname" name="slastname" type="text" class="regular-text" value="<?php echo esc_attr( get_user_meta($user->ID, 'pmpro_slastname', true) ); ?>" />
 			</td>
 		</tr>
 		<tr>
-			<th><?php _e('Address 1', 'pmpro');?></th>	
+			<th><?php _e('Address 1', 'pmpro');?></th>
 			<td>
 				<input id="saddress1" name="saddress1" type="text" class="regular-text" value="<?php echo esc_attr( get_user_meta($user->ID, 'pmpro_saddress1', true) ); ?>" />
 			</td>
 		</tr>
 		<tr>
-			<th><?php _e('Address 2', 'pmpro');?></th>	
+			<th><?php _e('Address 2', 'pmpro');?></th>
 			<td>
 				<input id="saddress2" name="saddress2" type="text" class="regular-text" value="<?php echo esc_attr( get_user_meta($user->ID, 'pmpro_saddress2', true) ); ?>" />
 			</td>
 		</tr>
 		<tr>
-			<th><?php _e('City', 'pmpro');?></th>	
+			<th><?php _e('City', 'pmpro');?></th>
 			<td>
 				<input id="scity" name="scity" type="text" class="regular-text" value="<?php echo esc_attr( get_user_meta($user->ID, 'pmpro_scity', true) ); ?>" />
 			</td>
 		</tr>
-		<tr>		
-			<th><?php _e('State', 'pmpro');?></th>				
+		<tr>
+			<th><?php _e('State', 'pmpro');?></th>
 			<td>
 				<?php /*
 				<select id="sstate" name="sstate">
 					<option value="">--</option>
-					<?php 
+					<?php
 						$sstate = get_user_meta($user->ID, 'pmpro_sstate', true);
-						foreach($pmpro_states as $ab => $st) 
-						{ 
+						foreach($pmpro_states as $ab => $st)
+						{
 					?>
 						<option value="<?=$ab?>" <?php if($ab == $sstate) { ?>selected="selected"<?php } ?>><?=$st?></option>
 					<?php } ?>
 				</select>
 				*/ ?>
-								
-				<input id="sstate" name="sstate" type="text" class="regular-text" value="<?php echo esc_attr( get_user_meta($user->ID, 'pmpro_sstate', true) ); ?>" />				
+
+				<input id="sstate" name="sstate" type="text" class="regular-text" value="<?php echo esc_attr( get_user_meta($user->ID, 'pmpro_sstate', true) ); ?>" />
 			</td>
 		</tr>
-		<tr>		
-			<th><?php _e('Postal Code', 'pmpro');?></th>	
+		<tr>
+			<th><?php _e('Postal Code', 'pmpro');?></th>
 			<td>
 				<input id="szipcode" name="szipcode" type="text" class="regular-text" value="<?php echo esc_attr( get_user_meta($user->ID, 'pmpro_szipcode', true) ); ?>" />
 			</td>
 		</tr>
-		<tr>		
-			<th><?php _e('Country', 'pmpro');?></th>	
+		<tr>
+			<th><?php _e('Country', 'pmpro');?></th>
 			<td>
 				<input id="scountry" name="scountry" type="text" class="regular-text" value="<?php echo esc_attr( get_user_meta($user->ID, 'pmpro_scountry', true) ); ?>" />
 			</td>
-		</tr>		
- 
+		</tr>
+
 	</table>
 <?php
 }
 add_action( 'show_user_profile', 'pmproship_show_extra_profile_fields' );
 add_action( 'edit_user_profile', 'pmproship_show_extra_profile_fields' );
- 
-function pmproship_save_extra_profile_fields( $user_id ) 
+
+function pmproship_save_extra_profile_fields( $user_id )
 {
 	if ( !current_user_can( 'edit_user', $user_id ) )
 		return false;
- 
-	update_user_meta( $user_id, 'pmpro_sfirstname', $_POST['sfirstname'] );
-	update_user_meta( $user_id, 'pmpro_slastname', $_POST['slastname'] );
-	update_user_meta( $user_id, 'pmpro_saddress1', $_POST['saddress1'] );
-	update_user_meta( $user_id, 'pmpro_saddress2', $_POST['saddress2'] );
-	update_user_meta( $user_id, 'pmpro_scity', $_POST['scity'] );
-	update_user_meta( $user_id, 'pmpro_sstate', $_POST['sstate'] );
-	update_user_meta( $user_id, 'pmpro_szipcode', $_POST['szipcode'] );
-	update_user_meta( $user_id, 'pmpro_scountry', $_POST['scountry'] );
+
+	update_usermeta( $user_id, 'pmpro_sfirstname', $_POST['sfirstname'] );
+	update_usermeta( $user_id, 'pmpro_slastname', $_POST['slastname'] );
+	update_usermeta( $user_id, 'pmpro_saddress1', $_POST['saddress1'] );
+	update_usermeta( $user_id, 'pmpro_saddress2', $_POST['saddress2'] );
+	update_usermeta( $user_id, 'pmpro_scity', $_POST['scity'] );
+	update_usermeta( $user_id, 'pmpro_sstate', $_POST['sstate'] );
+	update_usermeta( $user_id, 'pmpro_szipcode', $_POST['szipcode'] );
+	update_usermeta( $user_id, 'pmpro_scountry', $_POST['scountry'] );
 }
 add_action( 'personal_options_update', 'pmproship_save_extra_profile_fields' );
 add_action( 'edit_user_profile_update', 'pmproship_save_extra_profile_fields' );
- 
+
 /*
 	These bits are required for PayPal Express only.
 */
 function pmproship_pmpro_paypalexpress_session_vars()
 {
-	//save our added fields in session while the user goes off to PayPal	
+	//save our added fields in session while the user goes off to PayPal
 	$_SESSION['sameasbilling'] = $_REQUEST['sameasbilling'];
-	
+
 	//assume the request is set
 	$_SESSION['saddress1'] = $_REQUEST['saddress1'];
 	$_SESSION['sfirstname'] = $_REQUEST['sfirstname'];
     $_SESSION['slastname'] = $_REQUEST['slastname'];
     $_SESSION['sstate'] = $_REQUEST['sstate'];
     $_SESSION['scity'] = $_REQUEST['scity'];
-	$_SESSION['szipcode'] = $_REQUEST['szipcode'];		
-	$_SESSION['scountry'] = $_REQUEST['scountry'];		
-	
+	$_SESSION['szipcode'] = $_REQUEST['szipcode'];
+	$_SESSION['scountry'] = $_REQUEST['scountry'];
+
 	//check this one cause it's optional
 	if(!empty($_REQUEST['saddress2']))
 		$_SESSION['saddress2'] = $_REQUEST['saddress2'];
@@ -384,21 +433,19 @@ function pmproship_pmpro_paypalexpress_session_vars()
 		$_SESSION['saddress2'] = "";
 }
 add_action("pmpro_paypalexpress_session_vars", "pmproship_pmpro_paypalexpress_session_vars");
- 
+
 /*
 	Require the shipping fields (optional)
 */
 function pmproship_pmpro_registration_checks($okay)
-{	
+{
 	//only check if we're okay so far and same as billing wasn't checked
 	if(empty($_REQUEST['sameasbilling']))
 	{
-		global $pmpro_msg, $pmpro_msgt, $pmpro_error_fields;	
-		
+		global $pmpro_msg, $pmpro_msgt, $pmpro_error_fields;
+
 		$required_shipping_fields = array('sfirstname', 'slastname', 'saddress1', 'scity', 'sstate', 'szipcode', 'scountry');
-		
-		$required_shipping_fields = apply_filters("pmproship_required_shipping_fields", $required_shipping_fields);
-	
+
 		foreach($required_shipping_fields as $field)
 		{
 			if(empty($_REQUEST[$field]))
@@ -409,16 +456,16 @@ function pmproship_pmpro_registration_checks($okay)
 			}
 		}
 	}
-	
+
 	return $okay;
 }
 add_filter("pmpro_registration_checks", "pmproship_pmpro_registration_checks");
- 
+
 //adding shipping address to confirmation page
 function pmproship_pmpro_confirmation_message($confirmation_message, $pmpro_invoice)
 {
-	global $current_user;		
- 
+	global $current_user;
+
 	//does the user have a shipping address?
 	$sfirstname = get_user_meta($current_user->ID, "pmpro_sfirstname", true);
 	$slastname = get_user_meta($current_user->ID, "pmpro_slastname", true);
@@ -428,33 +475,33 @@ function pmproship_pmpro_confirmation_message($confirmation_message, $pmpro_invo
 	$sstate = get_user_meta($current_user->ID, "pmpro_sstate", true);
 	$szipcode = get_user_meta($current_user->ID, "pmpro_szipcode", true);
 	$scountry = get_user_meta($current_user->ID, "pmpro_scountry", true);
-	
+
 	if(!empty($scity) && !empty($sstate))
 	{
 		$shipping_address = $sfirstname . " " . $slastname . "<br />" . $saddress1 . "<br />";
 		if($saddress2)
 			$shipping_address .= $saddress2 . "<br />";
 		$shipping_address .= $scity . ", " . $sstate . " " . $szipcode;
-		$shipping_address .= "<br />" . $scountry;		
-		
+		$shipping_address .= "<br />" . $scountry;
+
 		$confirmation_message .= '<br /><h3>' . __('Shipping Information:', 'pmpro') . '</h3><p>' . $shipping_address . '</p>';
 	}
-			
+
 	return $confirmation_message;
 }
 add_filter("pmpro_confirmation_message", "pmproship_pmpro_confirmation_message", 10, 2);
- 
+
 //adding shipping address to confirmation email
 function pmproship_pmpro_email_body($body, $pmpro_email)
 {
 	global $wpdb;
- 
+
 	//get the user_id from the email
 	$user_id = $wpdb->get_var("SELECT ID FROM $wpdb->users WHERE user_email = '" . $pmpro_email->data['user_email'] . "' LIMIT 1");
-	
+
 	if(!empty($user_id))
 	{
-		//does the user being emailed have a shipping address?		
+		//does the user being emailed have a shipping address?
 		$sfirstname = get_user_meta($user_id, "pmpro_sfirstname", true);
 		$slastname = get_user_meta($user_id, "pmpro_slastname", true);
 		$saddress1 = get_user_meta($user_id, "pmpro_saddress1", true);
@@ -463,16 +510,16 @@ function pmproship_pmpro_email_body($body, $pmpro_email)
 		$sstate = get_user_meta($user_id, "pmpro_sstate", true);
 		$szipcode = get_user_meta($user_id, "pmpro_szipcode", true);
 		$scountry = get_user_meta($user_id, "pmpro_scountry", true);
-		
+
 		if(!empty($scity) && !empty($sstate))
 		{
 			$shipping_address = $sfirstname . " " . $slastname . "<br />" . $saddress1 . "<br />";
 			if($saddress2)
 				$shipping_address .= $saddress2 . "<br />";
-			$shipping_address .= $scity . ", " . $sstate . " " . $szipcode;								
+			$shipping_address .= $scity . ", " . $sstate . " " . $szipcode;
 		}
 		$shipping_address .= "<br />" . $scountry;
-		
+
 		if(!empty($shipping_address))
 		{
 			//squeeze the shipping address above the billing information or above the log link
@@ -480,16 +527,16 @@ function pmproship_pmpro_email_body($body, $pmpro_email)
 				$body = str_replace("Billing Information:", "Shipping Address:<br />" . $shipping_address . "<br /><br />Billing Information:", $body);
 			else
 				$body = str_replace("Log in to your membership", "Shipping Address:<br />" . $shipping_address . "<br /><br />Log in to your membership", $body);
-		}		
+		}
 	}
- 
+
 	return $body;
 }
 add_filter("pmpro_email_body", "pmproship_pmpro_email_body", 10, 2);
- 
- 
- 
- 
+
+
+
+
 //use a dropdown for state in the billing fields
 function pmproship_pmpro_state_dropdowns($use)
 {
@@ -517,7 +564,7 @@ function pmproship_pmpro_memberslist_extra_cols_body($theuser)
 {
 ?>
 <td>
-	<?php 
+	<?php
 		if(empty($theuser->pmpro_sfirstname))
 			$theuser->pmpro_sfirstname = "";
 		if(empty($theuser->pmpro_slastname))
@@ -526,9 +573,9 @@ function pmproship_pmpro_memberslist_extra_cols_body($theuser)
 	?><br />
 	<?php if(!empty($theuser->pmpro_saddress1)) { ?>
 		<?php echo $theuser->pmpro_saddress1; ?><br />
-		<?php if(!empty($theuser->pmpro_saddress2)) echo $theuser->pmpro_saddress2 . "<br />"; ?>										
+		<?php if(!empty($theuser->pmpro_saddress2)) echo $theuser->pmpro_saddress2 . "<br />"; ?>
 		<?php if($theuser->pmpro_scity && $theuser->pmpro_sstate) { ?>
-			<?php echo $theuser->pmpro_scity?>, <?php echo $theuser->pmpro_sstate?> <?php echo $theuser->pmpro_szipcode?>  <?php if(!empty($theuser->pmpro_scountry)) echo $theuser->pmpro_scountry?><br />												
+			<?php echo $theuser->pmpro_scity?>, <?php echo $theuser->pmpro_sstate?> <?php echo $theuser->pmpro_szipcode?>  <?php if(!empty($theuser->pmpro_scountry)) echo $theuser->pmpro_scountry?><br />
 		<?php } ?>
 	<?php } ?>
 	<?php if(!empty($theuser->pmpro_sphone)) echo formatPhone($theuser->pmpro_sphone);?>
@@ -553,9 +600,9 @@ function pmproship_pmpro_members_list_csv_extra_columns($columns)
 		"szipcode" => "pmproship_extra_column_szipcode",
 		"scountry" => "pmproship_extra_column_scountry"
 	);
-	
+
 	$columns = array_merge($columns, $new_columns);
-	
+
 	return $columns;
 }
 add_filter("pmpro_members_list_csv_extra_columns", "pmproship_pmpro_members_list_csv_extra_columns");
@@ -575,10 +622,10 @@ function pmproship_extra_column_scountry($user){if(!empty($user->metavalues->pmp
 */
 //show the checkbox on the edit level page
 function pmproship_pmpro_membership_level_after_other_settings()
-{	
+{
 	$level_id = isset($_REQUEST['edit']) ? intval($_REQUEST['edit']) : 0;
 	if($level_id > 0)
-		$hide_shipping = get_option('pmpro_shipping_hidden_level_' . $level_id);	
+		$hide_shipping = get_option('pmpro_shipping_hidden_level_' . $level_id);
 	else
 		$hide_shipping = false;
 ?>
@@ -633,8 +680,8 @@ function pmproship_plugin_row_meta($links, $file) {
 	if(strpos($file, 'pmpro-shipping.php') !== false)
 	{
 		$new_links = array(
-			'<a href="' . esc_url('https://www.paidmembershipspro.com/add-ons/shipping-address-membership-checkout/')  . '" title="' . esc_attr( __( 'View Documentation', 'pmpro' ) ) . '">' . __( 'Docs', 'pmpro' ) . '</a>',
-			'<a href="' . esc_url('https://paidmembershipspro.com/support/') . '" title="' . esc_attr( __( 'Visit Customer Support Forum', 'pmpro' ) ) . '">' . __( 'Support', 'pmpro' ) . '</a>',
+			'<a href="' . esc_url('http://www.paidmembershipspro.com/add-ons/plugins-on-github/shipping-address-membership-checkout/')  . '" title="' . esc_attr( __( 'View Documentation', 'pmpro' ) ) . '">' . __( 'Docs', 'pmpro' ) . '</a>',
+			'<a href="' . esc_url('http://paidmembershipspro.com/support/') . '" title="' . esc_attr( __( 'Visit Customer Support Forum', 'pmpro' ) ) . '">' . __( 'Support', 'pmpro' ) . '</a>',
 		);
 		$links = array_merge($links, $new_links);
 	}
